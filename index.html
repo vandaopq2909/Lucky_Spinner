@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 Vòng Quay May Mắn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.6), 0 0 40px rgba(118, 75, 162, 0.4);
+        }
+        
+        .slot-machine {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            border: 8px solid #ffd700;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .slot-display {
+            background: #000;
+            border: 4px solid #333;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+        
+        .slot-reel {
+            width: 80px;
+            height: 120px;
+            background: linear-gradient(180deg, #1a1a1a, #2a2a2a);
+            border: 2px solid #444;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .slot-numbers {
+            position: absolute;
+            width: 100%;
+            transition: transform 0.1s ease;
+        }
+        
+        .slot-number {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            border-bottom: 1px solid #333;
+        }
+        
+        .slot-machine-top {
+            background: linear-gradient(145deg, #ffd700, #ffed4e);
+            height: 20px;
+            border-radius: 10px 10px 0 0;
+            margin: -10px -10px 10px -10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .slot-machine-lights {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+        }
+        
+        .light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff4444;
+            box-shadow: 0 0 10px #ff4444;
+            animation: blink 1s infinite alternate;
+        }
+        
+        .light:nth-child(2) {
+            background: #44ff44;
+            box-shadow: 0 0 10px #44ff44;
+            animation-delay: 0.3s;
+        }
+        
+        .light:nth-child(3) {
+            background: #4444ff;
+            box-shadow: 0 0 10px #4444ff;
+            animation-delay: 0.6s;
+        }
+        
+        @keyframes blink {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            animation: confetti-fall 3s linear infinite;
+            z-index: 1000;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        .result-glow {
+            animation: result-pulse 2s infinite;
+        }
+        
+        @keyframes result-pulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(255, 215, 0, 0.9);
+                transform: scale(1.05);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .slot-machine {
+                padding: 20px;
+                max-width: 350px;
+            }
+            
+            .slot-reel {
+                width: 60px;
+                height: 100px;
+            }
+            
+            .slot-number {
+                height: 100px;
+                font-size: 2.5rem;
+            }
+            
+            .slot-display {
+                padding: 15px;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="min-h-screen flex flex-col items-center justify-center p-4 relative z-10">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-4 neon-glow">
+                🎰 VÒNG QUAY MAY MẮN
+            </h1>
+            <p class="text-lg md:text-xl text-purple-200">Khám phá số may mắn của bạn!</p>
+        </div>
+        
+        <!-- Bước 1: Form nhập tên -->
+        <div id="nameForm" class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 w-full max-w-md neon-glow">
+            <h2 class="text-2xl font-bold text-white mb-6 text-center">Nhập tên của bạn</h2>
+            <input 
+                type="text" 
+                id="playerName" 
+                placeholder="Tên của bạn..."
+                class="w-full p-4 rounded-xl bg-white/20 text-white placeholder-purple-200 border-2 border-purple-300 focus:border-yellow-400 focus:outline-none text-lg"
+            >
+            <button 
+                onclick="startGame()"
+                class="w-full mt-6 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 neon-glow"
+            >
+                🎯 BẮT ĐẦU QUAY SỐ
+            </button>
+        </div>
+        
+        <!-- Bước 2: Chọn linh vật -->
+        <div id="mascotSection" class="hidden bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 w-full max-w-2xl neon-glow">
+            <h2 class="text-2xl font-bold text-white mb-6 text-center">
+                Chọn linh vật may mắn của bạn! 🍀
+            </h2>
+            <p class="text-center text-purple-200 mb-8">Mỗi linh vật sẽ mang lại tỷ lệ may mắn khác nhau</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="mascotGrid">
+                <!-- Mascots will be generated here -->
+            </div>
+            
+            <div id="selectedMascot" class="hidden mt-8 text-center">
+                <div class="bg-white/20 rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4">Linh vật đã chọn:</h3>
+                    <div class="text-6xl mb-4" id="selectedMascotIcon"></div>
+                    <div class="text-lg text-white mb-2" id="selectedMascotName"></div>
+                    <div class="text-2xl font-bold text-yellow-400 mb-4" id="selectedMascotBonus">+0% May mắn</div>
+                    
+                    <div class="mb-4">
+                        <div class="text-lg text-white mb-2">Bắt đầu sau: <span id="countdown" class="text-yellow-400 font-bold">5</span>s</div>
+                        <div class="w-full bg-gray-600 rounded-full h-2">
+                            <div id="countdownBar" class="bg-yellow-400 h-2 rounded-full transition-all duration-1000" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        onclick="startSpinning()"
+                        class="w-full md:w-auto bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-3 px-6 md:px-8 rounded-xl text-base md:text-lg transition-all duration-300 transform hover:scale-105 neon-glow"
+                    >
+                        🚀 BẮT ĐẦU NGAY
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bước 3: Vòng quay -->
+        <div id="wheelSection" class="hidden bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 w-full max-w-lg neon-glow">
+            <h2 class="text-2xl font-bold text-white mb-4 text-center">
+                Chào <span id="displayName" class="text-yellow-400"></span>! 🌟
+            </h2>
+            <div class="text-center mb-6">
+                <div class="bg-white/20 rounded-xl p-4 inline-block">
+                    <div class="text-4xl mb-2" id="currentMascotIcon">🐱</div>
+                    <div class="text-lg text-yellow-400 font-bold" id="currentMascotBonus">+0% May mắn</div>
+                </div>
+            </div>
+            
+            <div class="slot-machine mb-8">
+                <div class="slot-machine-top"></div>
+                <div class="slot-machine-lights">
+                    <div class="light"></div>
+                    <div class="light"></div>
+                    <div class="light"></div>
+                </div>
+                <div class="slot-display">
+                    <div class="slot-reel">
+                        <div class="slot-numbers" id="reel1">
+                            <div class="slot-number">0</div>
+                            <div class="slot-number">1</div>
+                            <div class="slot-number">2</div>
+                            <div class="slot-number">3</div>
+                            <div class="slot-number">4</div>
+                            <div class="slot-number">5</div>
+                            <div class="slot-number">6</div>
+                            <div class="slot-number">7</div>
+                            <div class="slot-number">8</div>
+                            <div class="slot-number">9</div>
+                        </div>
+                    </div>
+                    <div class="slot-reel">
+                        <div class="slot-numbers" id="reel2">
+                            <div class="slot-number">0</div>
+                            <div class="slot-number">1</div>
+                            <div class="slot-number">2</div>
+                            <div class="slot-number">3</div>
+                            <div class="slot-number">4</div>
+                            <div class="slot-number">5</div>
+                            <div class="slot-number">6</div>
+                            <div class="slot-number">7</div>
+                            <div class="slot-number">8</div>
+                            <div class="slot-number">9</div>
+                        </div>
+                    </div>
+                    <div class="slot-reel">
+                        <div class="slot-numbers" id="reel3">
+                            <div class="slot-number">0</div>
+                            <div class="slot-number">1</div>
+                            <div class="slot-number">2</div>
+                            <div class="slot-number">3</div>
+                            <div class="slot-number">4</div>
+                            <div class="slot-number">5</div>
+                            <div class="slot-number">6</div>
+                            <div class="slot-number">7</div>
+                            <div class="slot-number">8</div>
+                            <div class="slot-number">9</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button 
+                id="spinButton"
+                onclick="spinWheel()"
+                class="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 neon-glow"
+            >
+                🎲 QUAY SỐ MAY MẮN
+            </button>
+        </div>
+        
+        <!-- Bước 4: Kết quả -->
+        <div id="resultSection" class="hidden bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 w-full max-w-lg neon-glow">
+            <h2 class="text-3xl font-bold text-center mb-6">
+                <span class="text-yellow-400">🎉 CHÚC MỪNG! 🎉</span>
+            </h2>
+            <div class="text-center mb-6">
+                <div class="text-6xl font-bold text-yellow-400 result-glow p-4 rounded-xl bg-white/20" id="finalNumber" style="font-family: 'JetBrains Mono', 'Courier New', monospace;">
+                    000
+                </div>
+                <p class="text-xl text-white mt-4">Số may mắn của bạn!</p>
+            </div>
+            <button 
+                onclick="saveResult()"
+                class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 neon-glow"
+            >
+                ✨ LƯU KẾT QUẢ
+            </button>
+        </div>
+        
+        <!-- Bảng kết quả -->
+        <div id="resultsTable" class="hidden mt-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 w-full max-w-4xl neon-glow">
+            <h3 class="text-2xl font-bold text-white mb-6 text-center">📊 BẢNG KẾT QUẢ</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-white text-sm md:text-base">
+                    <thead>
+                        <tr class="border-b border-purple-300">
+                            <th class="text-left py-2 md:py-3 px-2 md:px-4">Tên</th>
+                            <th class="text-left py-2 md:py-3 px-2 md:px-4">Linh vật</th>
+                            <th class="text-left py-2 md:py-3 px-2 md:px-4">Số may mắn</th>
+                            <th class="text-left py-2 md:py-3 px-2 md:px-4">Thời gian</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                    </tbody>
+                </table>
+            </div>
+            <button 
+                onclick="playAgain()"
+                class="w-full mt-6 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+            >
+                🔄 CHƠI LẠI
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        let currentPlayer = '';
+        let currentNumber = 0;
+        let isSpinning = false;
+        
+        // Tạo hiệu ứng sao
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // Danh sách linh vật
+        const mascots = [
+            { icon: '🐱', name: 'Mèo may mắn', bonus: 10 },
+            { icon: '🐶', name: 'Chó trung thành', bonus: 25 },
+            { icon: '🐰', name: 'Thỏ nhanh nhẹn', bonus: 50 },
+            { icon: '🐸', name: 'Ếch thông minh', bonus: 10 },
+            { icon: '🐦', name: 'Chim hạnh phúc', bonus: 25 },
+            { icon: '🐢', name: 'Rùa trường thọ', bonus: 50 },
+            { icon: '🐷', name: 'Heo thịnh vượng', bonus: 10 },
+            { icon: '🐮', name: 'Trâu chăm chỉ', bonus: 25 },
+            { icon: '🐯', name: 'Hổ dũng mãnh', bonus: 50 },
+            { icon: '🐭', name: 'Chuột thông minh', bonus: 10 },
+            { icon: '🐹', name: 'Hamster dễ thương', bonus: 25 },
+            { icon: '🐺', name: 'Sói bản lĩnh', bonus: 50 }
+        ];
+        
+        let selectedMascot = null;
+        let countdownTimer = null;
+        
+        // Bắt đầu game
+        function startGame() {
+            const name = document.getElementById('playerName').value.trim();
+            if (!name) {
+                alert('Vui lòng nhập tên của bạn!');
+                return;
+            }
+            
+            currentPlayer = name;
+            document.getElementById('nameForm').classList.add('hidden');
+            showMascotSelection();
+        }
+        
+        // Hiển thị màn hình chọn linh vật
+        function showMascotSelection() {
+            // Random 3 linh vật với 3 mức bonus khác nhau
+            const bonusLevels = [10, 25, 50];
+            const availableMascots = [...mascots];
+            const selectedMascots = [];
+            
+            bonusLevels.forEach(bonus => {
+                const mascotsWithBonus = availableMascots.filter(m => m.bonus === bonus);
+                const randomMascot = mascotsWithBonus[Math.floor(Math.random() * mascotsWithBonus.length)];
+                selectedMascots.push(randomMascot);
+                // Remove selected mascot from available list
+                const index = availableMascots.indexOf(randomMascot);
+                availableMascots.splice(index, 1);
+            });
+            
+            // Shuffle the selected mascots
+            selectedMascots.sort(() => Math.random() - 0.5);
+            
+            const mascotGrid = document.getElementById('mascotGrid');
+            mascotGrid.innerHTML = selectedMascots.map((mascot, index) => `
+                <div class="mascot-card bg-white/20 rounded-xl p-4 md:p-6 text-center cursor-pointer transition-all duration-300 hover:bg-white/30 hover:scale-105 border-2 border-transparent hover:border-yellow-400" 
+                     onclick="selectMascot('${mascot.icon}', '${mascot.name}', ${mascot.bonus}, ${index}, event)">
+                    <div class="text-4xl md:text-6xl mb-3 md:mb-4">${mascot.icon}</div>
+                    <div class="text-base md:text-lg font-bold text-white mb-2">${mascot.name}</div>
+                    <div class="mascot-bonus text-lg md:text-xl font-bold text-yellow-400 opacity-0 transition-all duration-500" id="bonus-${index}">+${mascot.bonus}% May mắn</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('mascotSection').classList.remove('hidden');
+        }
+        
+        // Chọn linh vật
+        function selectMascot(icon, name, bonus, index, event) {
+            selectedMascot = { icon, name, bonus };
+            
+            // Show bonus for selected mascot with animation
+            document.getElementById(`bonus-${index}`).style.opacity = '1';
+            
+            // Highlight selected mascot
+            document.querySelectorAll('.mascot-card').forEach(card => {
+                card.classList.remove('border-yellow-400', 'bg-white/30');
+                card.classList.add('border-transparent');
+            });
+            
+            const selectedCard = event ? event.target.closest('.mascot-card') : document.querySelector(`[onclick*="selectMascot('${icon}'"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('border-yellow-400', 'bg-white/30');
+            }
+            
+            // Show selected mascot info
+            document.getElementById('selectedMascotIcon').textContent = icon;
+            document.getElementById('selectedMascotName').textContent = name;
+            document.getElementById('selectedMascotBonus').textContent = `+${bonus}% May mắn`;
+            document.getElementById('selectedMascot').classList.remove('hidden');
+            
+            // Start countdown
+            startCountdown();
+        }
+        
+        // Bắt đầu đếm ngược
+        function startCountdown() {
+            let timeLeft = 5;
+            const countdownElement = document.getElementById('countdown');
+            const countdownBar = document.getElementById('countdownBar');
+            
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+            }
+            
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                countdownElement.textContent = timeLeft;
+                countdownBar.style.width = (timeLeft / 5) * 100 + '%';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    startSpinning();
+                }
+            }, 1000);
+        }
+        
+        // Bắt đầu quay số
+        function startSpinning() {
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+            }
+            
+            document.getElementById('displayName').textContent = currentPlayer;
+            document.getElementById('currentMascotIcon').textContent = selectedMascot.icon;
+            document.getElementById('currentMascotBonus').textContent = `+${selectedMascot.bonus}% May mắn`;
+            
+            document.getElementById('mascotSection').classList.add('hidden');
+            document.getElementById('wheelSection').classList.remove('hidden');
+        }
+        
+        // Quay slot machine
+        function spinWheel() {
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            const spinButton = document.getElementById('spinButton');
+            
+            spinButton.disabled = true;
+            spinButton.textContent = '🎰 ĐANG QUAY...';
+            
+            // Tạo số ngẫu nhiên 3 chữ số
+            const finalNumber = Math.floor(Math.random() * 1000);
+            currentNumber = finalNumber;
+            
+            const digits = finalNumber.toString().padStart(3, '0').split('');
+            const reels = ['reel1', 'reel2', 'reel3'];
+            
+            // Quay từng reel với thời gian khác nhau
+            reels.forEach((reelId, index) => {
+                const reel = document.getElementById(reelId);
+                const finalDigit = parseInt(digits[index]);
+                
+                // Tạo hiệu ứng quay
+                let spins = 0;
+                const maxSpins = 20 + (index * 10); // Reel sau quay lâu hơn
+                
+                const spinInterval = setInterval(() => {
+                    const randomDigit = Math.floor(Math.random() * 10);
+                    const isMobile = window.innerWidth <= 768;
+                    const slotHeight = isMobile ? 100 : 120;
+                    const offset = -randomDigit * slotHeight;
+                    reel.style.transform = `translateY(${offset}px)`;
+                    
+                    spins++;
+                    
+                    if (spins >= maxSpins) {
+                        clearInterval(spinInterval);
+                        // Dừng ở số cuối cùng
+                        const isMobile = window.innerWidth <= 768;
+                        const slotHeight = isMobile ? 100 : 120;
+                        const finalOffset = -finalDigit * slotHeight;
+                        reel.style.transform = `translateY(${finalOffset}px)`;
+                        
+                        // Nếu là reel cuối cùng, hiển thị kết quả
+                        if (index === 2) {
+                            setTimeout(() => {
+                                showResult();
+                            }, 500);
+                        }
+                    }
+                }, 100 + (index * 20)); // Tốc độ khác nhau cho mỗi reel
+            });
+        }
+        
+        // Hiển thị kết quả
+        function showResult() {
+            setTimeout(() => {
+                createConfetti();
+                document.getElementById('wheelSection').classList.add('hidden');
+                document.getElementById('resultSection').classList.remove('hidden');
+                document.getElementById('finalNumber').textContent = currentNumber.toString().padStart(3, '0');
+                
+                // Phát âm thanh chúc mừng (placeholder)
+                console.log('🎵 Phát nhạc chúc mừng!');
+                
+                isSpinning = false;
+            }, 1000);
+        }
+        
+        // Tạo hiệu ứng confetti
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }, i * 100);
+            }
+        }
+        
+        // Lưu kết quả
+        function saveResult() {
+            const results = JSON.parse(localStorage.getItem('luckyResults') || '[]');
+            const newResult = {
+                name: currentPlayer,
+                mascot: selectedMascot,
+                number: currentNumber.toString().padStart(3, '0'),
+                time: new Date().toLocaleString('vi-VN')
+            };
+            
+            results.unshift(newResult);
+            localStorage.setItem('luckyResults', JSON.stringify(results));
+            
+            displayResults();
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('resultsTable').classList.remove('hidden');
+        }
+        
+        // Hiển thị bảng kết quả
+        function displayResults() {
+            const results = JSON.parse(localStorage.getItem('luckyResults') || '[]');
+            const tbody = document.getElementById('resultsBody');
+            
+            tbody.innerHTML = results.map(result => `
+                <tr class="border-b border-purple-200/30 hover:bg-white/10">
+                    <td class="py-2 md:py-3 px-2 md:px-4">${result.name}</td>
+                    <td class="py-2 md:py-3 px-2 md:px-4">
+                        ${result.mascot ? `
+                            <div class="flex items-center gap-1 md:gap-2">
+                                <span class="text-lg md:text-xl">${result.mascot.icon}</span>
+                                <span class="text-xs md:text-sm text-yellow-400">+${result.mascot.bonus}%</span>
+                            </div>
+                        ` : '<span class="text-gray-400 text-xs">-</span>'}
+                    </td>
+                    <td class="py-2 md:py-3 px-2 md:px-4 font-bold text-yellow-400">${result.number}</td>
+                    <td class="py-2 md:py-3 px-2 md:px-4 text-xs md:text-sm">${result.time}</td>
+                </tr>
+            `).join('');
+        }
+        
+        // Chơi lại
+        function playAgain() {
+            document.getElementById('resultsTable').classList.add('hidden');
+            document.getElementById('nameForm').classList.remove('hidden');
+            document.getElementById('playerName').value = '';
+            
+            // Reset all states
+            selectedMascot = null;
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+            }
+            
+            // Reset slot machine
+            const reels = ['reel1', 'reel2', 'reel3'];
+            const spinButton = document.getElementById('spinButton');
+            
+            reels.forEach(reelId => {
+                const reel = document.getElementById(reelId);
+                reel.style.transform = 'translateY(0px)';
+            });
+            
+            spinButton.disabled = false;
+            spinButton.textContent = '🎲 QUAY SỐ MAY MẮN';
+            
+            // Hide mascot selection
+            document.getElementById('selectedMascot').classList.add('hidden');
+        }
+        
+        // Khởi tạo
+        document.addEventListener('DOMContentLoaded', () => {
+            createStars();
+            
+            // Hiển thị bảng kết quả nếu có dữ liệu
+            const results = JSON.parse(localStorage.getItem('luckyResults') || '[]');
+            if (results.length > 0) {
+                displayResults();
+            }
+            
+            // Enter để bắt đầu
+            document.getElementById('playerName').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    startGame();
+                }
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96f6ad41f537ce8b',t:'MTc1NTIzOTc3Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
