@@ -414,12 +414,41 @@
         let selectedMascot = null;
         let countdownTimer = null;
         
+        // Tạo nhạc nền từ file MP3
+        function createBackgroundMusic() {
+            const audio = new Audio('sound/bg.mp3');
+            audio.loop = true; // Lặp lại vô tận
+            audio.volume = 0.3; // Âm lượng vừa phải
+            
+            // Xử lý lỗi nếu không tìm thấy file
+            audio.addEventListener('error', (e) => {
+                console.log('Không thể tải file nhạc nền:', e);
+            });
+            
+            // Phát nhạc
+            audio.play().catch(error => {
+                console.log('Không thể phát nhạc nền:', error);
+            });
+            
+            return audio;
+        }
+        
+        let backgroundMusic = null;
+        
         // Bắt đầu game
         function startGame() {
             const name = document.getElementById('playerName').value.trim();
             if (!name) {
                 alert('Vui lòng nhập tên của bạn!');
                 return;
+            }
+            
+            // Bắt đầu phát nhạc nền
+            try {
+                backgroundMusic = createBackgroundMusic();
+                console.log('🎵 Bắt đầu phát nhạc nền may mắn!');
+            } catch (error) {
+                console.log('Không thể phát nhạc nền:', error);
             }
             
             currentPlayer = name;
@@ -654,6 +683,14 @@
         
         // Chơi lại
         function playAgain() {
+            // Dừng nhạc nền
+            if (backgroundMusic) {
+                backgroundMusic.pause();
+                backgroundMusic.currentTime = 0;
+                backgroundMusic = null;
+                console.log('🎵 Đã dừng nhạc nền');
+            }
+            
             document.getElementById('resultsTable').classList.add('hidden');
             document.getElementById('nameForm').classList.remove('hidden');
             document.getElementById('playerName').value = '';
@@ -699,5 +736,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96f6ad41f537ce8b',t:'MTc1NTIzOTc3Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96f6d0a6b21afd07',t:'MTc1NTI0MTIyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
